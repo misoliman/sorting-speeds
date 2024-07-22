@@ -2,7 +2,9 @@ const bubbleSort = async (items) => {
     const size = items.length
     for (let i = 0; i < size; ++i) {
         for (let j = 0; j < size - i - 1; ++j) {
-
+            if (killSwitch) {
+                return
+            }
             items[j].style.backgroundColor = "red";
             await new Promise(resolve => setTimeout(resolve, timeDelay));
             const currentWidth = getWidth(items[j]);
@@ -23,6 +25,9 @@ const selectionSort = async (items) => {
         let maxIndex = i
         items[maxIndex].style.backgroundColor = "yellow"
         for (let j = i + 1; j < size; ++j) {
+            if (killSwitch) {
+                return
+            }
             items[j].style.backgroundColor = "red"
             await new Promise(resolve => setTimeout(resolve, timeDelay))
             if (getWidth(items[j]) < getWidth(items[maxIndex])) {
@@ -55,7 +60,9 @@ const insertionSort = async (items) => {
         items[i].style.backgroundColor = "red"
         let current = i;
         while (current > 0 && getWidth(items[current]) < getWidth(items[current - 1])) {
-
+            if (killSwitch) {
+                return
+            }
             let temp = getWidth(items[current]);
             items[current].style.width = items[current - 1].style.width;
             items[current - 1].style.width = `${temp}px`;
@@ -74,7 +81,9 @@ const partition = async (items, start, end) => {
     let pivot = getWidth(items[end]);
     let actual = start;
     for (let i = start; i < end; ++i) {
-
+        if (killSwitch) {
+            return
+        }
         if (getWidth(items[i]) <= pivot) {
             [items[i].style.width, items[actual].style.width] = [items[actual].style.width, items[i].style.width];
             actual++;
@@ -90,7 +99,7 @@ const partition = async (items, start, end) => {
     return actual;
 }
 
-const quickSort = async (items, start, end, timeDelay) => {
+const quickSort = async (items, start = 0, end = items.length - 1) => {
     if (start < end) {
         let pivot = await partition(items, start, end, timeDelay);
         await quickSort(items, start, pivot - 1, timeDelay);
@@ -117,9 +126,15 @@ const merge = async (items, start, mid, end) => {
     const rightArray = new Array(rightSize);
 
     for (let i = 0; i < leftSize; i++) {
+        if (killSwitch) {
+            return
+        }
         leftArray[i] = items[start + i].style.width;
     }
     for (let j = 0; j < rightSize; j++) {
+        if (killSwitch) {
+            return
+        }
         rightArray[j] = items[mid + 1 + j].style.width;
     }
 
@@ -127,6 +142,9 @@ const merge = async (items, start, mid, end) => {
     let j = 0;
     let k = start;
     while (i < leftSize && j < rightSize) {
+        if (killSwitch) {
+            return
+        }
         if (parseInt(leftArray[i]) <= parseInt(rightArray[j])) {
             items[k].style.width = leftArray[i];
             i++;
@@ -141,6 +159,10 @@ const merge = async (items, start, mid, end) => {
     }
 
     while (i < leftSize) {
+        if (killSwitch) {
+            killSwitch = false
+            return
+        }
         items[k].style.width = leftArray[i];
         items[k].style.backgroundColor = "red";
         await new Promise(resolve => setTimeout(resolve, timeDelay));
@@ -150,6 +172,9 @@ const merge = async (items, start, mid, end) => {
     }
 
     while (j < rightSize) {
+        if (killSwitch) {
+            return
+        }
         items[k].style.width = rightArray[j];
         items[k].style.backgroundColor = "red";
         await new Promise(resolve => setTimeout(resolve, timeDelay));
@@ -159,7 +184,7 @@ const merge = async (items, start, mid, end) => {
     }
 };
 
-const mergeSort = async (items, start, end) => {
+const mergeSort = async (items, start = 0, end = items.length - 1) => {
     if (start >= end) return;
     const mid = Math.floor((start + end) / 2);
     await mergeSort(items, start, mid);
